@@ -1,0 +1,4 @@
+sudo mknod /dev/MemDev0 c 120 0
+sudo mknod /dev/MemDev1 c 120 1
+sudo chmod 766 /dev/MemDev0
+sudo chmod 766 /dev/MemDev1
