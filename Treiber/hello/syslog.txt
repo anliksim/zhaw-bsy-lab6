@@ -1,0 +1,4 @@
+journalctl -e
+
+May 08 19:17:04 lenny kernel: *** Hello World from Module ***
+May 08 19:18:08 lenny kernel: *** Good Bye from Module ***

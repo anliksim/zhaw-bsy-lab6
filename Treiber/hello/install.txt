@@ -1,0 +1,7 @@
+sudo pacman -S linux414-headers
+
+make
+
+sudo insmod HelloWorld.ko
+
+sudo rmmod HelloWorld.ko
