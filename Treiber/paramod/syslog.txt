@@ -1,0 +1,4 @@
+May 08 19:31:37 lenny sudo[4159]: anliksim : TTY=pts/2 ; PWD=/home/anliksim/codebase/zhaw-bsy-lab6/Treiber/paramod ; USER=root ; COMMAND=/usr/bin/insmod ParaModule.ko globalInt=55 globalChar=ThatsMyString
+May 08 19:31:37 lenny kernel: *** ParaModule: 55 - ThatsMyString ***
+May 08 19:31:57 lenny sudo[4165]: anliksim : TTY=pts/2 ; PWD=/home/anliksim/codebase/zhaw-bsy-lab6/Treiber/paramod ; USER=root ; COMMAND=/usr/bin/rmmod ParaModule.ko
+May 08 19:31:57 lenny kernel: *** Good Bye from ParaModule ***
