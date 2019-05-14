@@ -47,7 +47,7 @@ int use_count;
 int 	ParOpen(struct inode*, struct file*);
 int 	ParRelease(struct inode*, struct file*);
 ssize_t ParRead(struct file *filp, char *buf, size_t count, loff_t *anything);
-ssize_t ParWrite(struct file *filp, const char *buf, 
+ssize_t ParWrite(struct file *filp, const char *buf,
                                             size_t count, loff_t *anything);
 
 /*---------------------------------------------------------------------------*/
@@ -61,33 +61,61 @@ struct file_operations ParFops = {
   .write=	ParWrite,
 };
 
-/*---------------------------------------------------------------------------*/
+static int deviceOpen = 0;
+
+/*-----------------------------------------------------------------------*/
 
 int init_module(void) {
-
+    int res;
+    printk(KERN_ALERT "Hello from ParDriver\n");
+    deviceOpen = 0;
+    res = register_chrdev(MY_MAJOR, "ParDriver", &ParFops);
+    if (res < 0)
+        printk(KERN_ALERT "cannot register ParDriver");
+    return(res);
 }
 
 void cleanup_module(void) {
-
+    printk(KERN_ALERT "bye bye\n");
+    unregister_chrdev(MY_MAJOR, "ParDriver");
 }
 
-/*---------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------*/
 
 int ParOpen(struct inode *inode, struct file *filp) {
-
+    printk(KERN_ALERT "we are in the OPEN\n");
+    if (deviceOpen != 0)                /* check if not already in use */
+        return(-EBUSY);                 /* if yes return with error    */
+    else
+        deviceOpen++;
+    return(0);
 }
 
 int ParRelease(struct inode *inode, struct file *filp) {
-
+    printk(KERN_ALERT "we are in RELEASE\n");
+    deviceOpen--;
+    return(0);
 }
 
 ssize_t ParRead(struct file *filp, char *buf, size_t count, loff_t *offset) {
+    char byte;
+    printk(KERN_ALERT "we are in the READ\n");
+    byte = inb(BASE_ADDR+1);
+    if (copy_to_user(buf, &byte, count) != 0)
+        count = -1;
+    return(count);
 
 }
 
-ssize_t ParWrite(struct file *filp, const char *buf, 
-                                    size_t count, loff_t *offset) {
-
+ssize_t ParWrite(struct file *filp, const char *buf,
+                 size_t count, loff_t *offset) {
+    char byte;
+    printk(KERN_ALERT "we are in the WRITE");
+    if (copy_from_user(&byte, buf, count) != 0)
+        count = -1;
+    outb(byte, BASE_ADDR);
+    return(count);
 }
+
 
 /*****************************************************************************/
