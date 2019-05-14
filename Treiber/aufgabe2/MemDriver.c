@@ -92,17 +92,24 @@ ssize_t MemRead(struct file *filp, char *buf, size_t count, loff_t *offset) {
     dbuf_t *mem;
     printk(KERN_ALERT "we are in the READ\n");    
     mem = filp->private_data;
-    if (count > mem->length)
-        lcount = mem->length;
+    if ((*offset + count) > mem->length)
+        lcount = mem->length - *offset;
     else
         lcount = count;
+
+    // $ set new offset
+    *offset = *offset + lcount;
+
     if (copy_to_user(buf, mem->buffer, lcount) != 0)
         lcount = -1;
     return(lcount);
 }
 
-ssize_t MemWrite(struct file *filp, const char *buf, 
+ssize_t MemWrite(struct file *filp, const char *buf,
                                     size_t count, loff_t *offset) {
+    struct inode *inode;
+    int i;
+    char *buffer;
     dbuf_t *mem;
     printk(KERN_ALERT "we are in the WRITE");
     mem = filp->private_data;
@@ -115,6 +122,23 @@ ssize_t MemWrite(struct file *filp, const char *buf,
     mem->length = count;
     if (copy_from_user(mem->buffer, buf, count) != 0)
         count = -1;
+
+    // $ if minor version is 1
+    inode = filp->f_path.dentry->d_inode;
+    if (MINOR(inode->i_rdev) == 1) {
+        printk(KERN_ALERT "writing to node 1");
+
+        // $ toupper
+        buffer = (char*)mem->buffer;
+        for(i = 0; buffer[i]; i++){
+            if(buffer[i] >= 'a' && buffer[i] <= 'z') {
+                buffer[i] -= ('a' - 'A');
+            }
+        }
+    }
+
+    // $ set offset to 0
+    *offset = 0;
     return(count);
 }
 
